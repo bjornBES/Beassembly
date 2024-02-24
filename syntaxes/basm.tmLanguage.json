@@ -15,15 +15,15 @@
                 {
                     "name": "keyword.control.beassembly",
                     "comment": "basm instruction mnemonic",
-                    "match": "\\b(\\s*|)\\b(NOP|MOV|PUSH|POP|ADD|SUB|MUL|DIV|AND|OR|NOT|NOR|ROL|ROR|JMP|CMP|JLE|JE|JGE|JG|JNE|JL|JER|JMC|JMZ|JNC|INT|CALL|RTS|RET|PUSHR|POPR|INC|DEC|IN|OUT|CLF|SEF|XOR|JMS|JNS|SHL|SHR|HALT|nop|mov|push|pop|add|sub|mul|div|and|or|not|nor|rol|ror|jmp|cmp|jle|je|jge|jg|jne|jl|jer|jmc|jmz|jnc|int|call|rts|ret|pushr|popr|inc|dec|in|out|clf|sef|xor|jms|jns|shl|shr|halt)\\b"
+                    "match": "[\\s]*\\b(NOP|MOV|PUSH|POP|ADD|SUB|MUL|DIV|AND|OR|NOT|NOR|ROL|ROR|JMP|CMP|JLE|JE|JGE|JG|JNE|JL|JER|JMC|JMZ|JNC|INT|CALL|RTS|RET|PUSHR|POPR|INC|DEC|IN|OUT|CLF|SEF|XOR|JMS|JNS|SHL|SHR|HALT|nop|mov|push|pop|add|sub|mul|div|and|or|not|nor|rol|ror|jmp|cmp|jle|je|jge|jg|jne|jl|jer|jmc|jmz|jnc|int|call|rts|ret|pushr|popr|inc|dec|in|out|clf|sef|xor|jms|jns|shl|shr|halt)\\b"
                 },
                 {
                     "name": "comment.line.semicolon",
-                    "match": ";.*"
+                    "match": "[\\s]*;\\s.*"
                 },
                 {
                     "name": "variable.label.beassembly",
-                    "match": "^\\b(\\s*|)[A-Za-z_]*:"
+                    "match": "^\\b(\\s*|)[A-Za-z_\\d]*:"
                 },
                 {
                     "name": "keyword.control.directive",
@@ -43,12 +43,24 @@
                     ]
                 },
                 {
-                    "name": "variable.name",
-                    "match": "^\\$[A-Za-z_][A-Za-z_]*"
+                    "comment": "Key_word Names",
+                    "name": "keyword.control",
+                    "match": "[\\s,]*#\\b(KW_BS|KW_ESC|KW_ENT|NULL)"
                 },
                 {
+                    "comment": "Key_word Names",
+                    "name": "keyword.control",
+                    "match": "[\\s,]*#\\'.\\'"
+                },
+                {
+                    "comment": "variables",
+                    "name": "variable.name",
+                    "match": "^\\$[A-Za-z_][A-Za-z_]*[\\s]*"
+                },
+                {
+                    "comment": "use variables",
                     "name": "variable.parameter",
-                    "match": "[\\s]*[,]\\%[A-Za-z_][A-Za-z_]*"
+                    "match": "[\\s,]*\\%[A-Za-z_][A-Za-z_]*"
                 },
                 {
                     "name": "keyword.control.psuedoInstruction",
@@ -56,7 +68,7 @@
                 },
                 {
                     "name": "keyword.operator",
-                    "match": "(==?|!=|<=?>|<=?|>=?|\\|\\|?|\\^\\^?|&&?|<<<?|>>>?|~|!|\\+|-|\\*|//?|%%?|\\s=|\\s#=|\\s*=)|"
+                    "match": "(==?|!=|<=?>|<=?|>=?|\\|\\|?|\\^\\^?|&&?|<<<?|>>>?|~|!|\\+|-|\\*|//?|%%?|[\\s]*=|[\\s]*#=|[\\s]**=)|"
                 }
             ]
         },
@@ -68,6 +80,7 @@
                     "match": "[,&\\s]*\\b(ax|ah|al|bx|bh|bl|cx|ch|cl|dx|dh|dl|zx|zh|zl|x|xh|xl|y|yh|yl|mb|pc|sp|f|AX|AH|AL|BX|BH|BL|CX|CH|CL|DX|DH|DL|ZX|ZH|ZL|X|XH|XL|Y|YH|YL|MB|PC|SP|F)\\b"
                 },
                 {
+                    "comment": "for Paths and shit",
                     "name": "constant.character",
                     "match": "\\b(,|)[\\s]*\\./[A-Za-z/]*"
                 },
@@ -98,8 +111,9 @@
 					]
 				},
                 {
+                    "comment": "Address []",
                     "name": "variable.parameter",
-                    "match": "\\b(,|)[\\s]*\\[\\b([A-Za-z_][A-Za-z_]*|[\\da-fA-F][\\da-fA-F_]*h)\\]"
+                    "match": "[\\s,]*\\[\\b([A-Za-z_\\d][A-Za-z_\\d]*|[\\da-fA-F][\\da-fA-F_]*h)\\]"
                 },
                 {
                     "name": "variable.parameter",
@@ -107,7 +121,7 @@
                 },
                 {
                     "name": "constant.numeric",
-                    "match": "\\b(,|)[\\s]*.([\\da-fA-F][\\da-fA-F_]*h|[01][01_]*b|\\d[\\d_]*?)"
+                    "match": "[,\\s#]*([\\da-fA-F][\\da-fA-F_]*h|[01][01_]*b|[\\d][\\d_]*)"
                 }
             ]
         }

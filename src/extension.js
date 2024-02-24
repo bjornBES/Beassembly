@@ -1,6 +1,8 @@
 const vscode = require('vscode');
 const fs = require('fs');
-const filePath = 'C:/Users/bjorn/Desktop/CPUs/Language/Bassembly/beassembly/src/instr_Tooltips.txt';
+const path = require('path');
+
+const filePath = 'C:/Users/bjorn/Desktop/BES-8-CPU/Beassembly/files/';
 
 function activate(context) {
     console.log('Congratulations, your extension "basm" is now active!');
@@ -23,7 +25,7 @@ function activate(context) {
 
             // Read file content asynchronously
             return new Promise((resolve, reject) => {
-                fs.readFile(filePath, 'utf8', (err, data) => {
+                fs.readFile(filePath + "instr_Tooltips.txt", 'utf8', (err, data) => {
                     if (err) {
                         console.error('Error reading file:', err);
                         reject(err);
@@ -57,6 +59,12 @@ function activate(context) {
     let disposable = vscode.commands.registerCommand('beassembly.Hello', () => {
         // The code you want to run when the command is executed
         vscode.window.showInformationMessage('Hello, World!');
+    });
+    disposable = vscode.commands.registerCommand("beassembly.NewBEAssemblyFile", () => {
+        createNewFile("TEST.txt", "");
+    });
+    disposable = vscode.commands.registerCommand("beassembly.NewBEAssemblyProject", () => {
+        showInputBox("Name of the Projct");
     });
     context.subscriptions.push(disposable);
 }
@@ -109,8 +117,7 @@ function provideCompletionItems(document, position, token, context) {
     return Result;
 }
 
-function Registers(line)
-{
+function Registers(line) {
     if (line.toUpperCase().includes(' A')) {
         NewItem("AX", vscode.CompletionItemKind.Value, "16 bit register", "AX");
         NewItem("AL", vscode.CompletionItemKind.Value, "the low 8 bits part of AX", "AL");
@@ -165,7 +172,22 @@ function Registers(line)
         NewItem("F", vscode.CompletionItemKind.Value, "flags", "F");
     }
 }
+async function showInputBox(prompt) {
+    try {
+        // Show an input box to the user
+        const userInput = await vscode.window.showInputBox({
+            prompt: prompt,
+            placeHolder: 'Type here...',
+            value: '', // Default value
+        });
 
+        if (userInput !== undefined) {
+            createNewProject(userInput);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
 function Instrs(line) {
     let FirstChar = line[0];
     switch (FirstChar.toUpperCase()) {
@@ -247,7 +269,54 @@ function Instrs(line) {
             break;
     }
 }
+async function createNewFile(filename, path) {
+    try {
+        // Specify the file path and name
+        const filePath = vscode.Uri.file(vscode.workspace.rootPath + "/" + path + filename);
 
+        // Check if the file already exists
+        const fileExists = await vscode.workspace.fs.stat(filePath).then(() => true, () => false);
+
+        if (fileExists) {
+            console.error('File already exists.');
+            return;
+        }
+
+        // Get the content you want to write to the file
+        const content = '.org 0 ; ';
+
+        // Use workspace.fs.writeFile to create the new file
+        await vscode.workspace.fs.writeFile(filePath, Buffer.from(content));
+
+        console.log('File created successfully!');
+    } catch (error) {
+        console.error('Error creating the file:', error);
+    }
+}
+async function createNewProject(projectName) {
+    try {
+        // Specify the paths for the existing and new files
+        const existingFilePath = vscode.Uri.file(filePath + "startFile.asm");
+        const ProjectPath = vscode.Uri.file(vscode.workspace.rootPath + "/src/" + projectName);
+        const FilePath = vscode.Uri.file(ProjectPath.path + "/Program.asm");
+
+        vscode.workspace.fs.createDirectory(ProjectPath);
+
+        // Read content from the existing file
+        const existingFileContentBuffer = await vscode.workspace.fs.readFile(existingFilePath);
+        const existingFileContent = existingFileContentBuffer.toString();
+
+        // Use workspace.fs.writeFile to create the new file with modified content
+        await vscode.workspace.fs.writeFile(FilePath, Buffer.from(existingFileContent));
+
+        const newFileDocument = await vscode.workspace.openTextDocument(FilePath);
+        await vscode.window.showTextDocument(newFileDocument);
+
+        console.log('File created successfully with modified content!');
+    } catch (error) {
+        console.error('Error creating the file:', error);
+    }
+}
 function Snippet() {
     createSnippet("Address", "Makes an address", "[${1:Number}],{2:}", "Makes an address");
     createSnippet("Switch_Bank", "Bank",

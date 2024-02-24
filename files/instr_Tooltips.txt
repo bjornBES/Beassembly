@@ -92,3 +92,7 @@ DB An alternative to .BYTE, used to define one or more bytes of data.
 DW An alternative to .WORD, used to define one or more words of data.
 STR Defines a string of characters.
 STRZ Defines a null-terminated string, where the null character (0) marks the end of the string.
+KW_ENT 0x0A '\n'
+NULL 0x00 '\0'
+KW_BS 0x08 Backspace
+KW_ESC 0x1B Escape

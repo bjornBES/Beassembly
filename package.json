@@ -15,13 +15,21 @@
   "main": "./src/extension.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bjornBES/BES-8-CPU.git"
+    "url": "https://github.com/bjornBES/Beassembly.git"
   },
   "contributes": {
     "commands": [
       {
         "command": "beassembly.Hello",
         "title": "Hello"
+      },
+      {
+        "command": "beassembly.NewBEAssemblyFile",
+        "title": "NewBasmFile"
+      },
+      {
+        "command": "beassembly.NewBEAssemblyProject",
+        "title": "NewBasmProject"
       }
     ],
     "languages": [
@@ -37,6 +45,15 @@
           "assembly"
         ],
         "configuration": "./language-configuration.json"
+      }
+    ],
+    "configuration":[
+      {
+        "title": "Beassembly.Test",
+        "properties":
+        {
+          
+        }
       }
     ],
     "grammars": [
