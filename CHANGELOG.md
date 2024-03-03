@@ -1,9 +1,7 @@
 # Change Log
 
-All notable changes to the "beassembly" extension will be documented in this file.
+Added Errors
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+## Unreleased
 
-## [Unreleased]
-
-- Initial release
+- [version 0.0.31](./Builds/Beassembly-0.0.31/readme.md)

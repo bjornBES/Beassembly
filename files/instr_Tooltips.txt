@@ -49,13 +49,13 @@ DX Is a ``16 bits GP-register`` that is build op of two 8 bit registers
 ZX Is a ``16 bits GP-register`` that is build op of two 8 bit registers
 X Is a ``16 bits GP-register`` that is build op of two 8 bit registers
 Y Is a ``16 bits GP-register`` that is build op of two 8 bit registers
-R1 Is a ``16 bits GP-register`` that is build op of two 8 bit registers
-R2 Is a ``16 bits GP-register`` that is build op of two 8 bit registers
-R3 Is a ``16 bits GP-register`` that is build op of two 8 bit registers
-R4 Is a ``16 bits GP-register`` that is build op of two 8 bit registers
+R1 Is a ``16 bits GP-register`` that is some temporary registers for holding temporary data
+R2 Is a ``16 bits GP-register`` that is some temporary registers for holding temporary data
+R3 Is a ``16 bits GP-register`` that is some temporary registers for holding temporary data
+R4 Is a ``16 bits GP-register`` that is some temporary registers for holding temporary data
 MB The ``Memory Bank Register`` is an 16 bit bank register that controls what the bank is
 SP The ``Stack Pointer`` is a 16 bit index register that Decrements when pushing a value on the stack and Incrementing when popping a value off the stack
-PC The ``Program Counter`` is a 20 bit register that points to the current address of the program
+PC The ``Program Counter`` is a 16 bit register that points to the current address of the program
 F The ``Flags`` is a 16 bit register that holds information about the CPU
 AL Is the low 8 bit part of the ``AX`` register
 BL Is the low 8 bit part of the ``BX`` register
@@ -64,10 +64,6 @@ DL Is the low 8 bit part of the ``DX`` register
 ZL Is the low 8 bit part of the ``ZX`` register
 XL Is the low 8 bit part of the ``X`` register
 YL Is the low 8 bit part of the ``Y`` register
-R1L Is the low 8 bit part of the ``R1`` register
-R2L Is the low 8 bit part of the ``R2`` register
-R3L Is the low 8 bit part of the ``R3`` register
-R4L Is the low 8 bit part of the ``R4`` register
 AH Is the high 8 bit part of the ``AX`` register
 BH Is the high 8 bit part of the ``BX`` register
 CH Is the high 8 bit part of the ``CX`` register
@@ -75,10 +71,6 @@ DH Is the high 8 bit part of the ``DX`` register
 ZH Is the high 8 bit part of the ``ZX`` register
 XH Is the high 8 bit part of the ``X`` register
 YH Is the high 8 bit part of the ``Y`` register
-R1H Is the high 8 bit part of the ``R1`` register
-R2H Is the high 8 bit part of the ``R2`` register
-R3H Is the high 8 bit part of the ``R3`` register
-R4H Is the high 8 bit part of the ``R4`` register
 GLOBAL Declares a symbol as global, making it accessible from other files.
 EXTERN Informs the assembler that a symbol is defined in another file.
 BITS Specifies the default bit size for data elements in the program.
@@ -92,7 +84,18 @@ DB An alternative to .BYTE, used to define one or more bytes of data.
 DW An alternative to .WORD, used to define one or more words of data.
 STR Defines a string of characters.
 STRZ Defines a null-terminated string, where the null character (0) marks the end of the string.
+BANK Takes what ever comese after this and puts it in to the specified bank
 KW_ENT 0x0A '\n'
 NULL 0x00 '\0'
 KW_BS 0x08 Backspace
 KW_ESC 0x1B Escape
+FZ 0x00 ZERO Flag
+FQ 0x01 EQUAL Flag
+FL 0x02 LESS Flag
+FC 0x03 CARRY Flag
+FS 0x05 SIGN Flag
+FP 0x06 PARITY Flag
+FO 0x07 OVERFLOW Flag
+FI 0x10 INTERRUPT_ENABLE Flag
+FH 0x20 HALT Flag
+FE 0x30 ERROR Flag

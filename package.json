@@ -1,9 +1,9 @@
 {
   "name": "beassembly",
   "displayName": "BEassembly",
-  "description": "",
+  "description": "A low level assembly programming language built for the BES-8 processor",
   "publisher": "BjornBEs",
-  "version": "0.0.1",
+  "version": "0.0.32",
   "license":"MIT",
   "engines": {
     "vscode": "^1.86.0"
@@ -19,10 +19,6 @@
   },
   "contributes": {
     "commands": [
-      {
-        "command": "beassembly.Hello",
-        "title": "Hello"
-      },
       {
         "command": "beassembly.NewBEAssemblyFile",
         "title": "NewBasmFile"
@@ -41,8 +37,9 @@
         ],
         "extensions": [
           ".basm",
+          ".bes",
           ".asm",
-          "assembly"
+          ".assembly"
         ],
         "configuration": "./language-configuration.json"
       }
@@ -52,7 +49,6 @@
         "title": "Beassembly.Test",
         "properties":
         {
-          
         }
       }
     ],

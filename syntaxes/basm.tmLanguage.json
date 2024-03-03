@@ -18,27 +18,31 @@
                     "match": "[\\s]*\\b(NOP|MOV|PUSH|POP|ADD|SUB|MUL|DIV|AND|OR|NOT|NOR|ROL|ROR|JMP|CMP|JLE|JE|JGE|JG|JNE|JL|JER|JMC|JMZ|JNC|INT|CALL|RTS|RET|PUSHR|POPR|INC|DEC|IN|OUT|CLF|SEF|XOR|JMS|JNS|SHL|SHR|HALT|nop|mov|push|pop|add|sub|mul|div|and|or|not|nor|rol|ror|jmp|cmp|jle|je|jge|jg|jne|jl|jer|jmc|jmz|jnc|int|call|rts|ret|pushr|popr|inc|dec|in|out|clf|sef|xor|jms|jns|shl|shr|halt)\\b"
                 },
                 {
+                    "name": "comment.function.documentation",
+                    "match": "[\\s]*;\\s\\b(ax|ah|al|bx|bh|bl|cx|ch|cl|dx|dh|dl|zx|zh|zl|x|xh|xl|y|yh|yl|mb|pc|sp|f|r1|r2|r3|r4|AX|AH|AL|BX|BH|BL|CX|CH|CL|DX|DH|DL|ZX|ZH|ZL|X|XH|XL|Y|YH|YL|MB|PC|SP|F|R1|R2|R3|R4)\\s\\b([u]int[*]|[u]short[*])\\s[A-Za-z]*"
+                },
+                {
                     "name": "comment.line.semicolon",
                     "match": "[\\s]*;\\s.*"
                 },
                 {
                     "name": "variable.label.beassembly",
-                    "match": "^\\b(\\s*|)[A-Za-z_\\d]*:"
+                    "match": "\\b(\\s*|)[A-Za-z_\\d]*:"
                 },
                 {
                     "name": "keyword.control.directive",
                     "patterns": [
                         {
                             "name": "storage.modifier.visibility",
-                            "match": "^[\\s]*\\.\\b(global|extern|GLOBAL|EXTERN)[\\s]*[A-Za-z_][A-Za-z_]*\\:"
+                            "match": "[\\s]*(\\.|)\\b(global|extern|GLOBAL|EXTERN)[\\s]*[A-Za-z_][A-Za-z_]*\\:"
                         },
                         {
                             "name": "keyword.control.directive.bits",
-                            "match": "^[\\s]*\\.\\b((bits|BITS)(\\s+(8|16)))\\b"
+                            "match": "[\\s]*(\\.|)\\b((bits|BITS)(\\s+(8|16)))\\b"
                         },
                         {
                             "name": "keyword.control.directive.section",
-                            "match": "^[\\s]*\\.\\b(section|SECTION)\\b"
+                            "match": "[\\s]*(\\.|)\\b(section|SECTION)\\b"
                         }
                     ]
                 },
@@ -50,12 +54,17 @@
                 {
                     "comment": "Key_word Names",
                     "name": "keyword.control",
+                    "match": "[\\s,]*#\\b(FZ|FQ|FL|FC|FH|FS|FP|FE|FO|FI)"
+                },
+                {
+                    "comment": "Key_word Names",
+                    "name": "keyword.control",
                     "match": "[\\s,]*#\\'.\\'"
                 },
                 {
                     "comment": "variables",
                     "name": "variable.name",
-                    "match": "^\\$[A-Za-z_][A-Za-z_]*[\\s]*"
+                    "match": "\\$[A-Za-z_][A-Za-z_]*[\\s]*"
                 },
                 {
                     "comment": "use variables",
@@ -64,11 +73,11 @@
                 },
                 {
                     "name": "keyword.control.psuedoInstruction",
-                    "match": "[\\s]*\\.\\b(include|repeat|org)|(INCLUDE|REPEAT|ORG)\\b"
+                    "match": "[\\s]*(\\.|)\\b(include|repeat|org|bank)|(INCLUDE|REPEAT|ORG|BANK)\\b"
                 },
                 {
-                    "name": "keyword.operator",
-                    "match": "(==?|!=|<=?>|<=?|>=?|\\|\\|?|\\^\\^?|&&?|<<<?|>>>?|~|!|\\+|-|\\*|//?|%%?|[\\s]*=|[\\s]*#=|[\\s]**=)|"
+                    "name": "meta.preprocessor.numeric",
+                    "match": "([\\s]*\\|[0-9\\s]*|[\\s]*&&[0-9\\s]*|[\\s]*~|[\\s]*/[0-9\\s]*|[\\s]*%[0-9\\s]*|[\\s]*\\+[0-9\\s]*|[\\s]*-[0-9\\s]*|[\\s]*\\*[0-9\\s]*|[\\s]*=|[\\s]*#=|[\\s]**=)|"
                 }
             ]
         },
@@ -77,39 +86,44 @@
                 {
                     "name": "variable.language.beassembly",
                     "comment": "beassembly register name",
-                    "match": "[,&\\s]*\\b(ax|ah|al|bx|bh|bl|cx|ch|cl|dx|dh|dl|zx|zh|zl|x|xh|xl|y|yh|yl|mb|pc|sp|f|AX|AH|AL|BX|BH|BL|CX|CH|CL|DX|DH|DL|ZX|ZH|ZL|X|XH|XL|Y|YH|YL|MB|PC|SP|F)\\b"
+                    "match": "[,\\s]*\\b(ax|ah|al|bx|bh|bl|cx|ch|cl|dx|dh|dl|zx|zh|zl|x|xh|xl|y|yh|yl|mb|pc|sp|f|r1|r2|r3|r4|AX|AH|AL|BX|BH|BL|CX|CH|CL|DX|DH|DL|ZX|ZH|ZL|X|XH|XL|Y|YH|YL|MB|PC|SP|F|R1|R2|R3|R4)\\b"
+                },
+                {
+                    "name": "variable.language",
+                    "comment": "beassembly Indexed",
+                    "match": "\\&[A-Za-z\\d]*"
                 },
                 {
                     "comment": "for Paths and shit",
                     "name": "constant.character",
-                    "match": "\\b(,|)[\\s]*\\./[A-Za-z/]*"
+                    "match": "\\b(,|)[\\s]*[\\.]/[A-Za-z/]*"
                 },
                 {
                     "name": "keyword.control.beassembly",
-                    "match": "[\\s]*\\.\\b(byte|word|db|dw|str|strz|BYTE|WORD|DB|DW|STR|STRZ)\\b"
+                    "match": "[\\s]*(\\.|)\\b(byte|word|db|dw|str|strz|BYTE|WORD|DB|DW|STR|STRZ)\\b"
                 },
                 {
-					"name": "string.quoted.double.beassembly",
-					"begin": "\\b(,|)[\\s]*\"",
-					"end": "\"",
-					"patterns": [
-						{
-							"name": "constant.character.escape.beassembly",
-							"match": "\\\\."
-						}
-					]
-				},
-				{
-					"name": "string.quoted.single.beassembly",
-					"begin": "\\b(,|)[\\s]*\\'",
-					"end": "\\'",
-					"patterns": [
-						{
-							"name": "constant.character.escape.beassembly",
-							"match": "\\\\."
-						}
-					]
-				},
+                    "name": "string.quoted.double.beassembly",
+                    "begin": "\\b(,|)[\\s]*\"",
+                    "end": "\"",
+                    "patterns": [
+                        {
+                            "name": "constant.character.escape.beassembly",
+                            "match": "\\[\\.]"
+                        }
+                    ]
+                },
+                {
+                    "name": "string.quoted.single.beassembly",
+                    "begin": "\\b(,|)[\\s]*\\'",
+                    "end": "\\'",
+                    "patterns": [
+                        {
+                            "name": "constant.character.escape.beassembly",
+                            "match": "\\[\\.]"
+                        }
+                    ]
+                },
                 {
                     "comment": "Address []",
                     "name": "variable.parameter",
@@ -121,7 +135,7 @@
                 },
                 {
                     "name": "constant.numeric",
-                    "match": "[,\\s#]*([\\da-fA-F][\\da-fA-F_]*h|[01][01_]*b|[\\d][\\d_]*)"
+                    "match": "[,\\s#]*([10][10_]*b|0b[10][10_]*|0x[\\da-fA-F][\\da-fA-F_]*|[\\da-fA-F][\\da-fA-F_]*h|[\\d][\\d_]*)"
                 }
             ]
         }

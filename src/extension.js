@@ -2,10 +2,180 @@ const vscode = require('vscode');
 const fs = require('fs');
 const path = require('path');
 
+let instrs = [
+    "NOP",
+    "MOV",
+    "PUSH",
+    "POP",
+    "ADD",
+    "SUB",
+    "MUL",
+    "DIV",
+    "AND",
+    "OR",
+    "NOT",
+    "NOR",
+    "ROL",
+    "ROR",
+    "JMP",
+    "CMP",
+    "JLE",
+    "JE",
+    "JGE",
+    "JG",
+    "JNE",
+    "JL",
+    "JER",
+    "JMC",
+    "JMZ",
+    "JNC",
+    "INT",
+    "CALL",
+    "RTS",
+    "RET",
+    "PUSHR",
+    "POPR",
+    "INC",
+    "DEC",
+    "IN",
+    "OUT",
+    "CLF",
+    "SEF",
+    "XOR",
+    "JMS",
+    "JNS",
+    "SHL",
+    "SHR",
+    "HALT",
+];
+
 const filePath = 'C:/Users/bjorn/Desktop/BES-8-CPU/Beassembly/files/';
+let variables = [];
+let Lables = [];
+const diagnosticCollection = vscode.languages.createDiagnosticCollection('basm');
 
 function activate(context) {
     console.log('Congratulations, your extension "basm" is now active!');
+
+    context.subscriptions.push(
+        vscode.languages.registerDocumentFormattingEditProvider(
+            { scheme: 'file', language: 'basm' },
+            {
+                provideDocumentFormattingEdits(document, options, token) {
+                    return FormatDocument(document, options, token);
+                },
+            }
+        )
+    );
+
+    let diagnostic = [];
+    context.subscriptions.push(
+        vscode.workspace.onDidChangeTextDocument(event => {
+            diagnostic = [];
+            const document = event.document;
+            if (document.languageId === "basm") {
+                const Text = document.getText().split("\r\n");
+                for (let index = 0; index < Text.length; index++) {
+                    const element = Text[index].replace(/\s+/g, ' ');
+                    let NumberOfSpaces = 0;
+                    const Sections = element.split(' ');
+                    let Instr = element.split(' ')[0];
+                    let NumberOfCommas = 0;
+                    for (let charindex = 0; charindex < element.length; charindex++) {
+                        const char = element[charindex];
+                        if (char === ';') break;
+                        if (char === ',') NumberOfCommas++;
+                        if (char === ' ') NumberOfSpaces++;
+                    }
+
+                    if (element === " " || element === "" || element.startsWith(";") || element.endsWith(":")) continue
+
+                    if (element.startsWith('.', 0)) {
+                        continue;
+                    }
+                    if (element.startsWith('$', 0)) {
+                        const range = new vscode.Range(index, 0, index, element.length);
+                        let length = element.split(' ').length;
+                        if (length == 1) {
+                            diagnostic.push(new vscode.Diagnostic(range, "BASM E00006 " + "Variable" + " needs a name", vscode.DiagnosticSeverity.Error));
+                        }
+                        if (length > 1) {
+                            if (element.split(' ')[1] !== '=' && element.split(' ')[1] !== '*=' && element.split(' ')[1] !== '#=') {
+                                diagnostic.push(new vscode.Diagnostic(range, "BASM E00005 " + "Variable" + " needs an operator", vscode.DiagnosticSeverity.Error));
+                            }
+                            if (element.replace(/\s+/g, ' ').split(' ').length > 1) {
+                                if (element.replace(/\s+/g, ' ').split(' ')[2] === "") {
+                                    diagnostic.push(new vscode.Diagnostic(range, "BASM E00004 " + "Variable" + " needs a value", vscode.DiagnosticSeverity.Error));
+                                }
+                                if (element.replace(/\s+/g, ' ').split(' ')[2].startsWith('#')) {
+                                    const ImmCharrange = new vscode.Range(index, element.indexOf("#", Instr.length), index, element.indexOf("#", Instr.length));
+                                    diagnostic.push(new vscode.Diagnostic(ImmCharrange, "BASM E00001 unexpected \'#\'", vscode.DiagnosticSeverity.Error));
+                                }
+                            }
+                        }
+                        continue;
+                    }
+
+                    if (instrs.includes(Instr.toUpperCase()) !== true) {
+                        if (Instr.endsWith(':') || Instr == "") continue;
+                        const range = new vscode.Range(index, 0, index, element.length);
+                        diagnostic.push(new vscode.Diagnostic(range, "BASM E00003 " + element + ' is not an instructions', vscode.DiagnosticSeverity.Error));
+                    }
+
+                    if (Instr.toUpperCase() === "MOV" ||
+                        Instr.toUpperCase() === "ADD" ||
+                        Instr.toUpperCase() === "SUB" ||
+                        Instr.toUpperCase() === "MUL" ||
+                        Instr.toUpperCase() === "DIV" ||
+                        Instr.toUpperCase() === "AND" ||
+                        Instr.toUpperCase() === "OR" ||
+                        Instr.toUpperCase() === "NOR" ||
+                        Instr.toUpperCase() === "ROR" ||
+                        Instr.toUpperCase() === "ROL" ||
+                        Instr.toUpperCase() === "CMP" ||
+                        Instr.toUpperCase() === "OUT" ||
+                        Instr.toUpperCase() === "IN" ||
+                        Instr.toUpperCase() === "XOR" ||
+                        Instr.toUpperCase() === "SHL" ||
+                        Instr.toUpperCase() === "SHR") {
+                        if (NumberOfCommas == 1) continue;
+                        if (NumberOfCommas < 1) {
+                            const range = new vscode.Range(index, 0, index, element.length);
+                            diagnostic.push(new vscode.Diagnostic(range, 'BASM E00000 expected \',\'', vscode.DiagnosticSeverity.Error));
+                        }
+                        else if (NumberOfCommas > 1) {
+                            const range = new vscode.Range(index, 0, index, element.length);
+                            diagnostic.push(new vscode.Diagnostic(range, 'BASM E00002 Too many arguments', vscode.DiagnosticSeverity.Error));
+                        }
+                    }
+
+                    if (Instr.toUpperCase() === "INT")
+                    {
+                        if(!Sections[1].startsWith('#'))
+                        {
+                            const range = new vscode.Range(index, 0, index, Instr.length + 1 + Sections[1].length);
+                            diagnostic.push(new vscode.Diagnostic(range, 'BASM E00008 expected argument', vscode.DiagnosticSeverity.Error));
+                        }
+                    }
+
+                    for (let sectionindex = 1; sectionindex < Sections.length; sectionindex++) {
+                        const section = Sections[sectionindex];
+                        if(section.startsWith("[#"))
+                        {
+                            const range = new vscode.Range(index, element.indexOf("[#", 0), index, element.indexOf("[#", 0) + 2);
+                            diagnostic.push(new vscode.Diagnostic(range, 'BASM E00007 unexpected arguments \"[#\"', vscode.DiagnosticSeverity.Error));
+                        }
+                        if(section.startsWith("#["))
+                        {
+                            const range = new vscode.Range(index, element.indexOf("#[", 0), index, element.indexOf("#[", 0)+ 2);
+                            diagnostic.push(new vscode.Diagnostic(range, 'BASM E00007 unexpected arguments \"#[\"', vscode.DiagnosticSeverity.Error));
+                        }
+                    }
+                }
+            }
+            diagnosticCollection.set(document.uri, diagnostic);
+        })
+    );
     const LSPDisposable = vscode.languages.registerCompletionItemProvider(
         { scheme: 'file', language: 'basm' },
         {
@@ -13,6 +183,11 @@ function activate(context) {
         },
         '.',
         ' ',
+        '#',
+        '=',
+        '%',
+        '[',
+        "/^[A-Za-z]+$/"
     )
     context.subscriptions.push(LSPDisposable);
     const hoverProvider = vscode.languages.registerHoverProvider('basm', {
@@ -56,28 +231,118 @@ function activate(context) {
     context.subscriptions.push(hoverProvider);
 
     // Register a command
-    let disposable = vscode.commands.registerCommand('beassembly.Hello', () => {
-        // The code you want to run when the command is executed
-        vscode.window.showInformationMessage('Hello, World!');
-    });
-    disposable = vscode.commands.registerCommand("beassembly.NewBEAssemblyFile", () => {
-        createNewFile("TEST.txt", "");
-    });
-    disposable = vscode.commands.registerCommand("beassembly.NewBEAssemblyProject", () => {
+    context.subscriptions.push(vscode.commands.registerCommand("beassembly.NewBEAssemblyFile", () => {
+        vscode.window.showInformationMessage("Hello World");
+        //createNewFile("TEST.txt", "");
+    }));
+    context.subscriptions.push(vscode.commands.registerCommand("beassembly.NewBEAssemblyProject", () => {
         showInputBox("Name of the Projct");
-    });
-    context.subscriptions.push(disposable);
+    }));
+}
+
+function getVariables(document) {
+    variables = [];
+    Lables = [];
+    for (let i = 0; i < document.lineCount; i++) {
+        const line = document.lineAt(i).text;
+        // Check if the line starts with '$'
+        if (line.trim().startsWith('$')) {
+            if (variables.includes(line) === false) {
+                variables.push(line);
+            }
+        }
+        if (line.trim().endsWith(':')) {
+            if (Lables.includes(line.trim()) === false) {
+                Lables.push(line.trim());
+            }
+        }
+    }
+}
+
+
+/**
+ * @param {vscode.TextDocument} document
+ * @param {vscode.FormattingOptions} options
+ * @param {vscode.CancellationToken} token
+ * @returns {vscode.TextEdit[]}
+ */
+function FormatDocument(document, options, token) {
+    let Textedits = [];
+    const RangeFullDocument = new vscode.Range(0, 0, document.lineCount - 1, document.lineAt(document.lineCount - 1).text.length);
+
+    const newText = document.getText().trimStart();
+
+    Textedits.push(vscode.TextEdit.replace(RangeFullDocument, newText))
+
+    return Textedits;
 }
 
 let Result = [];
 function provideCompletionItems(document, position, token, context) {
+    getVariables(document);
     // Retrieve the current word that the user is typing
-    const PLine = document.lineAt(position.line - 1).text;
-    const Line = document.lineAt(position).text.substr(0, position.character);
+    const Line = document.lineAt(position.line).text;
+    const PLine = document.lineAt(position.line - 1).text.trim();
+    const currentLine = Line.trim();
+    let arguments;
+    if (currentLine.match(/^\S+\s+(\S.*)$/) !== null) {
+        arguments = currentLine.match(/^\S+\s+(\S.*)$/)[1];
+    }
+    const firstchar = currentLine[0];
+    let currentchar = Line[position.character - 1];
+    let Lastchar = Line[position.character - 2];
+
+    // Split the line into sections using spaces
+    const sections = currentLine.split(/\s+/);
+
+    // Find the current section based on the cursor position
+    let currentSection = '';
+    let currentPos = 0;
+
+    for (const section of sections) {
+        const sectionLength = section.length + 1; // Include the space
+        if (currentPos + sectionLength > position.character - 1) {
+            currentSection = section;
+            break;
+        }
+        currentPos += sectionLength;
+    }
+
+
     Result = [];
 
+    if ((context.triggerCharacter === '=' || context.triggerCharacter === '#' || context.triggerCharacter === ' ') &&
+        firstchar === '$' && currentchar === ' ' && Line[position.character - 2] !== '=') {
+        NewItem("=", vscode.CompletionItemKind.Operator, "Sets a value in memory", "=");
+        NewItem("#=", vscode.CompletionItemKind.Operator, "Sets an imm as a variable", "#=");
+        NewItem("*=", vscode.CompletionItemKind.Operator, "Sets a pointer to the address specified by the value", "*=");
+        return Result;
+    }
+    if ((context.triggerCharacter === '#' || context.triggerCharacter === ' ') &&
+        firstchar !== context.triggerCharacter && currentLine[0] === "/^[A-Za-z]+$/") {
+        NewItem("#", vscode.CompletionItemKind.Operator, "Sets an imm value", "=");
+        createSnippet("#\'\'", "Makes an imm char", "\'${1:c}\'", "Makes an imm char");
+        return Result;
+    }
+
     // Check if the word matches a predefined list of suggestions
-    if (Line[0] === '.') {
+    if (currentchar === '[') {
+        for (let index = 0; index < Lables.length; index++) {
+            const Text = Lables[index].split(":")[0];
+            const element = "[" + Text + "]";
+            NewItem(element, vscode.CompletionItemKind.Field, Lables[index], Text);
+        }
+        return Result;
+    }
+    if (currentchar === '%') {
+        for (let index = 0; index < variables.length; index++) {
+            const Text = variables[index].split(" ")[0];
+            const element = "%" + Text.slice(1, Text.length);
+            NewItem(element, vscode.CompletionItemKind.Field, variables[index], element);
+        }
+        return Result;
+    }
+    if (firstchar === '.' && currentchar !== ' ') {
         if (position.line > 11) {
             NewItem('.bits', vscode.CompletionItemKind.Field, "", "bits");
         }
@@ -88,32 +353,13 @@ function provideCompletionItems(document, position, token, context) {
         NewItem('.strz', vscode.CompletionItemKind.Field, "", "strz");
         NewItem('.word', vscode.CompletionItemKind.Field, "", "word");
         NewItem('.byte', vscode.CompletionItemKind.Field, "", "byte");
-        createSnippet("Str", "Making a string", "str \"${1:Message}\"", "Making a string");
-        createSnippet("Str_Messge", "Making a string and a lable", "${1:Lable}:\r\n.strz \"${2:Message}\"", "Making a string");
+        return Result;
     }
-    else {
+    Snippet();
 
-        switch (Line.toUpperCase()) {
-            case "MOV ":
-                NewItem("AX", vscode.CompletionItemKind.Value, "16 bit register", "AX");
-                createSnippet("Address", "Makes an address", "[${1:Number}],{2:}", "Makes an address");
-                break;
+    Instrs(currentchar, currentLine);
 
-            default:
-                break;
-        }
-
-        Snippet();
-
-        Instrs(Line);
-
-        Registers(Line);
-        if (Line.at(0) === '$' && Line.at(Line.length - 1) === ' ') {
-            Result.push(new vscode.CompletionItem('=', vscode.CompletionItemKind.Operator))
-            Result.push(new vscode.CompletionItem('#=', vscode.CompletionItemKind.Operator))
-            Result.push(new vscode.CompletionItem('*=', vscode.CompletionItemKind.Operator))
-        }
-    }
+    Registers(currentLine);
     return Result;
 }
 
@@ -188,9 +434,9 @@ async function showInputBox(prompt) {
         console.error('Error:', error);
     }
 }
-function Instrs(line) {
-    let FirstChar = line[0];
-    switch (FirstChar.toUpperCase()) {
+function Instrs(currentChar, currentLine) {
+    if (currentLine.includes(' ')) return;
+    switch (currentChar.toUpperCase()) {
         case 'A':
             NewItem("ADD", vscode.CompletionItemKind.Module, "ADD destination, source.<br>Adds the source and destination and puts it in the destination", "add");
             NewItem("AND", vscode.CompletionItemKind.Module, "AND destination, source.<br>Bitwise AND on the source and destination and puts it in the destination", "and");
@@ -318,7 +564,8 @@ async function createNewProject(projectName) {
     }
 }
 function Snippet() {
-    createSnippet("Address", "Makes an address", "[${1:Number}],{2:}", "Makes an address");
+    createSnippet("Str", "Making a string", "str \"${1:Message}\"", "Making a string");
+    createSnippet("Str_Messge", "Making a string and a lable", "${1:Lable}:\r\n.strz \"${2:Message}\"", "Making a string");
     createSnippet("Switch_Bank", "Bank",
         "push MB\r\n" +
         "mov MB #${1:New_Bank}\r\n" +
